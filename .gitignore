@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.env
+bingo.db
+.DS_Store
