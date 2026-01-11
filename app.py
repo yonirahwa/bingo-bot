@@ -11,8 +11,8 @@ import json
 from pathlib import Path
 
 app = Flask(__name__, 
-            template_folder='../frontend',
-            static_folder='../frontend',
+            template_folder='frontend',
+            static_folder='frontend',
             static_url_path='')
 
 CORS(app)
@@ -117,7 +117,7 @@ def index():
 @app.route('/<path:path>')
 def serve_static(path):
     """Serve static files"""
-    return send_from_directory('../frontend', path)
+    return send_from_directory('frontend', path)
 
 # ===================== TEST ROUTE =====================
 
@@ -797,4 +797,5 @@ if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
     
     # For production (Render will use this)
+
     # app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
