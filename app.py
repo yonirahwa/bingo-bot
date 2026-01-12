@@ -10,6 +10,9 @@ import random
 import json
 from pathlib import Path
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 app = Flask(
     __name__,
     template_folder=os.path.join(BASE_DIR, "..", "frontend"),
@@ -791,3 +794,4 @@ def server_error(error):
 if __name__ == '__main__':
     # For local development
     app.run(debug=True, host='0.0.0.0', port=5000)
+
