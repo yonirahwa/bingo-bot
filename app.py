@@ -10,10 +10,11 @@ import random
 import json
 from pathlib import Path
 
-app = Flask(__name__, 
-            template_folder='frontend',
-            static_folder='frontend',
-            static_url_path='')
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "..", "frontend"),
+    static_folder=os.path.join(BASE_DIR, "..", "frontend")
+)
 
 CORS(app)
 
@@ -113,11 +114,6 @@ init_db()
 def index():
     """Serve the main game page"""
     return render_template('index.html')
-
-@app.route('/<path:path>')
-def serve_static(path):
-    """Serve static files"""
-    return send_from_directory('frontend', path)
 
 # ===================== TEST ROUTE =====================
 
@@ -795,7 +791,3 @@ def server_error(error):
 if __name__ == '__main__':
     # For local development
     app.run(debug=True, host='0.0.0.0', port=5000)
-
-# For production (Render will use this) - runs automatically
-if not app.debug:
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
