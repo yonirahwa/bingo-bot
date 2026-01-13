@@ -10,15 +10,16 @@ import random
 import json
 from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, static_folder="frontend",template_folder="frontend")
 
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-app = Flask(
-    __name__,
-    template_folder=os.path.join(BASE_DIR, "..", "frontend"),
-    static_folder=os.path.join(BASE_DIR, "..", "frontend")
-)
-
+# If you need direct static file routes
+@app.route('/<path:path>')
+def static_files(path):
+    return send_from_directory('frontend', path)
 CORS(app)
 
 # Database setup
@@ -794,3 +795,4 @@ def server_error(error):
 if __name__ == '__main__':
     # For local development
     app.run(debug=True, host='0.0.0.0', port=5000)
+
