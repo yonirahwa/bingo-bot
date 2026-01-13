@@ -1,7 +1,7 @@
 # app.py - Complete Flask Backend for Bingo Game
 # Customized for Telegram Bot & Render Deployment
 
-from flask import Flask, jsonify, request, render_template, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
 import sqlite3
@@ -112,11 +112,16 @@ def init_db():
 init_db()
 
 # ===================== FRONTEND ROUTES =====================
+FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
 
-@app.route('/')
+@app.route("/")
 def index():
-    """Serve the main game page"""
-    return render_template('index.html')
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+@app.route("/<path:path>")
+def static_files(path):
+    return send_from_directory(FRONTEND_DIR, path)
+
 
 # ===================== TEST ROUTE =====================
 
@@ -791,8 +796,8 @@ def server_error(error):
 
 # ===================== RUN SERVER =====================
 
-if __name__ == '__main__':
-    # For local development
-    app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
 
