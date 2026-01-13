@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Bingo Game - Play & Win</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- LOADING SCREEN -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Loading Bingo Game...</p>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div id="mainContainer" class="main-container" style="display: none;">
+        
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <h1>🎮 BINGO GAME</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span id="usernameBadge" class="username-badge">Player</span>
+                    <div class="balance-section">
+                        <div class="balance-item">
+                            <span class="balance-label">Balance</span>
+                            <span id="balanceDisplay" class="balance-value">0 ETB</span>
+                        </div>
+                        <div class="balance-item">
+                            <span class="balance-label">Bonus</span>
+                            <span id="bonusDisplay" class="balance-value bonus">0 ETB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- SCREEN 1: GAME SELECTION -->
+        <div id="gameSelectionScreen" class="screen active">
+            <div class="container">
+                <h2>🎯 Select Your Game</h2>
+                <p class="subtitle">Choose a stake amount to start playing</p>
+                
+                <div class="stakes-grid">
+                    <div class="stake-card" onclick="selectStake(10)">
+                        <div class="stake-amount">10</div>
+                        <div class="stake-currency">ETB</div>
+                        <div class="stake-label">Low Risk</div>
+                    </div>
+                    <div class="stake-card" onclick="selectStake(20)">
+                        <div class="stake-amount">20</div>
+                        <div class="stake-currency">ETB</div>
+                        <div class="stake-label">Medium</div>
+                    </div>
+                    <div class="stake-card" onclick="selectStake(25)">
+                        <div class="stake-amount">25</div>
+                        <div class="stake-currency">ETB</div>
+                        <div class="stake-label">Balanced</div>
+                    </div>
+                    <div class="stake-card" onclick="selectStake(30)">
+                        <div class="stake-amount">30</div>
+                        <div class="stake-currency">ETB</div>
+                        <div class="stake-label">High</div>
+                    </div>
+                    <div class="stake-card" onclick="selectStake(50)">
+                        <div class="stake-amount">50</div>
+                        <div class="stake-currency">ETB</div>
+                        <div class="stake-label">Premium</div>
+                    </div>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-box">
+                        <span class="stat-icon">🎮</span>
+                        <span class="stat-text">Games Played: <strong id="gamesPlayedStat">0</strong></span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">🏆</span>
+                        <span class="stat-text">Total Wins: <strong id="totalWinsStat">0</strong></span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">💰</span>
+                        <span class="stat-text">Winnings: <strong id="totalWinningsStat">0 ETB</strong></span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="goToProfile()">👤 Profile</button>
+                    <button class="btn btn-secondary" onclick="goToWallet()">💰 Wallet</button>
+                    <button class="btn btn-secondary" onclick="goToLeaderboard()">📊 Leaderboard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: CARD SELECTION -->
+        <div id="cardSelectionScreen" class="screen">
+            <div class="container">
+                <h2>🎴 Select Your Cards</h2>
+                <p class="subtitle">You can play with 1 or 2 cards</p>
+                
+                <div class="card-selection">
+                    <div class="card-option" onclick="selectCards(1)">
+                        <div class="card-count">1</div>
+                        <div class="card-label">One Card</div>
+                        <div class="card-benefit">Standard Play</div>
+                    </div>
+                    <div class="card-option" onclick="selectCards(2)">
+                        <div class="card-count">2</div>
+                        <div class="card-label">Two Cards</div>
+                        <div class="card-benefit">Double Chances</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="goBack()">⬅️ Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: GAME PLAY -->
+        <div id="gamePlayScreen" class="screen">
+            <div class="game-container">
+                
+                <!-- LEFT PANEL: CALLED NUMBERS -->
+                <div class="left-panel">
+                    <div class="called-section">
+                        <h3>📢 Called Numbers</h3>
+                        <div class="called-stats">
+                            <div class="called-stat">
+                                <span id="calledCount">0</span> Called
+                            </div>
+                            <div class="called-stat">
+                                <span id="remainingCount">75</span> Remaining
+                            </div>
+                        </div>
+                        <div id="calledNumbersList" class="called-numbers-list">
+                            <p class="empty-message">Waiting for numbers...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MIDDLE PANEL: CARDS -->
+                <div class="middle-panel">
+                    <div class="cards-header">
+                        <h3>🎴 Your Cards</h3>
+                        <button class="btn-small" id="autoMarkBtn" onclick="toggleAutoMark()">
+                            <span id="autoMarkText">🔘 Auto Mark: OFF</span>
+                        </button>
+                    </div>
+                    <div id="cardsContainer" class="cards-container">
+                        <!-- Cards will be generated here by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL: GAME INFO -->
+                <div class="right-panel">
+                    <div class="game-info-section">
+                        <h3>🎮 Game Info</h3>
+                        <div class="info-item">
+                            <span class="info-label">Game ID</span>
+                            <span id="gameIdDisplay" class="info-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status</span>
+                            <span id="gameStatusDisplay" class="info-value status-active">Active</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Stake</span>
+                            <span id="stakeDisplay" class="info-value">0 ETB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Time Elapsed</span>
+                            <span id="timeElapsedDisplay" class="info-value">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="leaderboard-mini">
+                        <h3>🏆 Top Players</h3>
+                        <div id="leaderboardList" class="leaderboard-list">
+                            <p class="empty-message">Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons vertical">
+                        <button class="btn btn-primary" id="bingoBtn" onclick="claimBingo()" style="display: none;">
+                            🎉 BINGO!
+                        </button>
+                        <button class="btn btn-secondary" onclick="endGame()">
+                            ⏹️ End Game
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SCREEN 4: PROFILE -->
+        <div id="profileScreen" class="screen">
+            <div class="container">
+                <h2>👤 Your Profile</h2>
+                
+                <div class="profile-card">
+                    <div class="profile-avatar">👤</div>
+                    <div class="profile-info">
+                        <div class="info-group">
+                            <label>Username:</label>
+                            <p id="profileUsername">-</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Phone:</label>
+                            <p id="profilePhone">-</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Member Since:</label>
+                            <p id="profileMemberSince">-</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Total Balance:</label>
+                            <p id="profileBalance" class="balance-highlight">0 ETB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <h3>📊 Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="profileGamesPlayed">0</div>
+                            <div class="stat-label">Games Played</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profileTotalWins">0</div>
+                            <div class="stat-label">Total Wins</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profileWinRate">0%</div>
+                            <div class="stat-label">Win Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="goToGameSelection()">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: WALLET -->
+        <div id="walletScreen" class="screen">
+            <div class="container">
+                <h2>💰 Wallet Management</h2>
+                
+                <div class="wallet-summary">
+                    <div class="wallet-card">
+                        <span class="wallet-label">Main Balance</span>
+                        <span id="walletBalance" class="wallet-amount">0 ETB</span>
+                    </div>
+                    <div class="wallet-card bonus">
+                        <span class="wallet-label">Bonus Balance</span>
+                        <span id="walletBonus" class="wallet-amount">0 ETB</span>
+                    </div>
+                </div>
+
+                <div class="wallet-actions">
+                    <button class="btn btn-primary" onclick="showDepositForm()">💸 Deposit</button>
+                    <button class="btn btn-primary" onclick="showWithdrawForm()">💳 Withdraw</button>
+                    <button class="btn btn-primary" onclick="showTransferForm()">🔄 Transfer</button>
+                </div>
+
+                <div id="transactionForm" class="transaction-form" style="display: none;">
+                    <h3 id="formTitle">Transaction</h3>
+                    <form onsubmit="processTransaction(event)">
+                        <input type="hidden" id="transactionType" value="">
+                        <input type="number" id="transactionAmount" placeholder="Amount (ETB)" min="0" step="0.01" required>
+                        <select id="transactionMethod" required>
+                            <option value="">Select Payment Method</option>
+                            <option value="telebirr">📱 Telebirr</option>
+                            <option value="cbe">🏦 CBE Bank</option>
+                            <option value="commercial">🏦 Commercial Bank</option>
+                        </select>
+                        <textarea id="transactionDescription" placeholder="Description (optional)" rows="3"></textarea>
+                        <div class="form-buttons">
+                            <button type="submit" class="btn btn-success">✓ Confirm</button>
+                            <button type="button" class="btn btn-secondary" onclick="hideTransactionForm()">✕ Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="transaction-history">
+                    <h3>📋 Recent Transactions</h3>
+                    <div id="transactionsList" class="transactions-list">
+                        <p class="empty-message">No transactions yet</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="goToGameSelection()">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 6: LEADERBOARD -->
+        <div id="leaderboardScreen" class="screen">
+            <div class="container">
+                <h2>📊 Top Players Leaderboard</h2>
+                
+                <div class="leaderboard-table">
+                    <div class="leaderboard-header">
+                        <div class="lb-rank">Rank</div>
+                        <div class="lb-name">Player Name</div>
+                        <div class="lb-wins">Wins</div>
+                        <div class="lb-balance">Balance</div>
+                    </div>
+                    <div id="leaderboardFullList" class="leaderboard-rows">
+                        <p class="empty-message">Loading leaderboard...</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="goToGameSelection()">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: WIN ANNOUNCEMENT -->
+        <div id="winModal" class="modal" style="display: none;">
+            <div class="modal-content win-content">
+                <div class="confetti-container">
+                    <span class="confetti">🎉</span>
+                    <span class="confetti">🎊</span>
+                    <span class="confetti">🏆</span>
+                </div>
+                <h2>🎉 BINGO! YOU WON! 🎉</h2>
+                <p id="winAmount" class="win-amount">+1000 ETB</p>
+                <p class="win-message">Congratulations! You've won this game!</p>
+                <button class="btn btn-primary" onclick="closeWinModal()">Play Again</button>
+            </div>
+        </div>
+
+        <!-- MODAL: ERROR -->
+        <div id="errorModal" class="modal" style="display: none;">
+            <div class="modal-content error-content">
+                <h2>⚠️ Error</h2>
+                <p id="errorMessage">Something went wrong</p>
+                <button class="btn btn-secondary" onclick="closeErrorModal()">OK</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
