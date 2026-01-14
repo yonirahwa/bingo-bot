@@ -9,6 +9,8 @@ import os
 import random
 import json
 from pathlib import Path
+from telegram import Update
+from telegram_bot import build_bot   # use your filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,6 +20,8 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "..", "frontend"),
     static_folder=os.path.join(BASE_DIR, "..", "frontend")
 )
+
+telegram_app = build_bot()
 
 CORS(app)
 
@@ -783,6 +787,20 @@ def get_referrals(telegram_id):
     
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+        @app.route("/telegram/webhook", methods=["POST"])
+async def telegram_webhook():
+    update = Update.de_json(request.get_json(force=True), telegram_app.bot)
+    await telegram_app.process_update(update)
+    return "OK"
+import asyncio
+
+async def setup_webhook():
+    await telegram_app.bot.set_webhook(
+        url=f"{os.environ['APP_URL']}/telegram/webhook"
+    )
+
+asyncio.get_event_loop().run_until_complete(setup_webhook())
+
 
 # ===================== ERROR HANDLERS =====================
 
@@ -799,5 +817,6 @@ def server_error(error):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
