@@ -796,7 +796,8 @@ def get_referrals(telegram_id):
             'referral_link': f'https://t.me/YOUR_BOT_NAME?start={referral_code}',
             'referral_count': 0
         }), 200
-
+      except Exception as e:
+          return jsonify({'status': 'error', 'message': str(e)}), 500
 # ===================== ERROR HANDLERS =====================
 
 @app.errorhandler(404)
@@ -812,6 +813,7 @@ def server_error(error):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
