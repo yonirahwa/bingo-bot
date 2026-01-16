@@ -12,6 +12,8 @@ from pathlib import Path
 from telegram import Update
 from telegram_bot import build_bot   # use your filename
 
+telegram_app = build_bot()
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -21,7 +23,7 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, "..", "frontend")
 )
 
-telegram_app = build_bot()
+
 
 CORS(app)
 
@@ -810,6 +812,7 @@ def server_error(error):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
