@@ -142,12 +142,12 @@ def test():
 # ===================== TELEGRAM WEBHOOK =====================
 
 @app.route("/telegram/webhook", methods=["POST"])
-async def telegram_webhook():
+def telegram_webhook():
     update = Update.de_json(
         request.get_json(force=True),
         telegram_app.bot
     )
-    await telegram_app.process_update(update)
+    telegram_app.update_queue.put(update)
     return "OK"
 
 # ===================== USER ROUTES =====================
@@ -779,7 +779,10 @@ def get_referrals(telegram_id):
         conn = get_db()
         cursor = conn.cursor()
         
-        cursor.execute('SELECT referral_code FROM users WHERE telegram_id = ?', (telegram_id,))
+        cursor.execute(
+            'SELECT referral_code FROM users WHERE telegram_id = ?',
+            (telegram_id,)
+        )
         user = cursor.fetchone()
         
         if not user:
@@ -787,7 +790,6 @@ def get_referrals(telegram_id):
             return jsonify({'status': 'error', 'message': 'User not found'}), 404
         
         referral_code = user['referral_code']
-        
         conn.close()
         
         return jsonify({
@@ -796,8 +798,11 @@ def get_referrals(telegram_id):
             'referral_link': f'https://t.me/YOUR_BOT_NAME?start={referral_code}',
             'referral_count': 0
         }), 200
-      except Exception as e:
-          return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+          
 # ===================== ERROR HANDLERS =====================
 
 @app.errorhandler(404)
@@ -813,6 +818,7 @@ def server_error(error):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
